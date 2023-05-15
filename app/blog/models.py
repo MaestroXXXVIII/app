@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.models import User
+from taggit.managers import TaggableManager
 
 class PublishedManger(models.Manager):
     def get_queryset(self):
@@ -21,6 +22,7 @@ class Post(models.Model):
     image = models.ImageField('Изображение', default='default_post.img', 
                               upload_to='img/')
     body = models.TextField()
+    tags = TaggableManager()
     publish = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
