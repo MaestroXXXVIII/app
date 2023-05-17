@@ -21,7 +21,7 @@ h2 {
 }
 
 #content { 
-    background: #808080;
+    background: #efefef;
     float:right;
     width:80%;
     padding:0 0 0 30px; 
@@ -32,7 +32,7 @@ h2 {
     float:left;
     width:15%;
     padding:30px;
-    background:#efefef; 
+    background:#808080; 
     height:100%;
     text-align: center;
     border-radius: 0 0 010px;
