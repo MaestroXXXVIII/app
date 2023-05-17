@@ -1,5 +1,7 @@
 from typing import Any
-from django.shortcuts import render, get_object_or_404
+from django.db.models.query import QuerySet
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views import View
 from .models import Post
 from taggit.models import Tag
 from django.views.generic import ListView
@@ -17,14 +19,14 @@ class PostListView(ListView):
     template_name = 'blog/post/list.html'
 
 
-def post_tag(request, tag_slug=None):
-    post_list = Post.published.all()
-    tag = None
-    if tag_slug:
-        tag = get_object_or_404(Tag, slug=tag_slug)
-        post_list = post_list.filter(tags__in=[tag])
-    return render(request, 'blog/post/list.html', {'posts': post_list, 
-                                                'tag':tag})
+class TagIndexView(ListView):
+    model = Post
+    template_name = 'blog/post/list.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        return Post.objects.filter(tags__slug=self.kwargs.get('tag_slug') )
+
 
 
 def post_detail(request, year, month, day, post):
@@ -70,16 +72,14 @@ def post_share(request, post_id):
                                                     'form': form,
                                                     'sent':sent})
 
-@require_POST
-def post_comment(request, post_id):
-    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
-    comment = None
-    form = CommentForm(data=request.POST)
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.post = post
-        comment.save()
-    return render(request, 'blog/post/comment.html',
-                           {'post': post,
-                            'form': form,
-                            'comment': comment})
+
+class AddComment(View):
+    
+    def post(self, request, pk):
+        form = CommentForm(request.POST)
+        post = Post.objects.get(id=pk)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.post = post
+            form.save()
+        return redirect(post.get_absolute_url())
