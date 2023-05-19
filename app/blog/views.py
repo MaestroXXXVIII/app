@@ -20,6 +20,7 @@ class PostListView(ListView):
 
 
 class TagIndexView(ListView):
+    
     model = Post
     template_name = 'blog/post/list.html'
     context_object_name = 'posts'
