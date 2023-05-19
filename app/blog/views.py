@@ -5,12 +5,13 @@ from django.views.generic import ListView
 from .forms import EmailPostForm, CommentForm, SearchForm
 from django.db.models import Count
 from django.core.mail import send_mail
-from django.contrib.postgres.search import SearchVector
+from django.contrib.postgres.search import SearchVector, SearchQuery,\
+                                           SearchRank
 
 
 
 class PostListView(ListView):
-    """Список постов"""
+    
     queryset = Post.published.all()
     context_object_name = 'posts'
     paginate_by = 3
@@ -94,9 +95,12 @@ class AddSearch(View):
             form = SearchForm(request.GET)
             if form.is_valid():
                 query = form.cleaned_data['query']
+                search_vector = SearchVector('title', 'body', config='russian')
+                search_query = SearchQuery(query, config='russian')
                 results = Post.published.annotate(
-                    search=SearchVector('title', 'body'),
-                    ).filter(search=query)
+                    search=search_vector,
+                    rank=SearchRank(search_vector, search_query)
+                    ).filter(search=search_query).order_by('-rank')
         return render(request, 'blog/post/search.html',
                      {'form': form,
                       'query': query,
