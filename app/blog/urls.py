@@ -13,4 +13,5 @@ urlpatterns = [
     path('<int:post_id>/share/', views.post_share, name='post_share'),
     path("comment/<int:pk>/", views.AddComment.as_view(), name="add_comment"),
     path('feed/', LatestPostsFeed(), name='post_feed'),
+    path('search/', views.AddSearch.as_view(), name='post_search'),
 ]
